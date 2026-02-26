@@ -185,7 +185,7 @@ def lemmatize(words, morph):
         lemmatized.append(morph.parse(word)[0].normal_form)
     return lemmatized
 
-def delete_stop_words_and_join(words, stopwords):
+def delete_stop_words(words, stopwords):
     normal_words = []
     for word in words:
         if not word in stopwords:
@@ -202,7 +202,7 @@ def text_from_words(words):
         return ' '.join(word for word in words)
     return None
 
-def prepare_data(df, test_size=0.25, syntax_correction=True, lemmatization=True, stopwords_removal=True):
+def prepare_data(df, test_size=0.25,  syntax_correction=False, lemmatization=False, stopwords_removal=False, split=True):
     
     A = np.array(df['A'])
     A = [delete_non_alpha(text) for text in tqdm(A, desc='Deleting non-alpha characters')]
@@ -219,13 +219,13 @@ def prepare_data(df, test_size=0.25, syntax_correction=True, lemmatization=True,
     
     if stopwords_removal:
         stopwords = get_stopwords()
-        A = [delete_stop_words_and_join(words, stopwords) for words in tqdm(A, desc='Deleting stopwords')]
+        A = [delete_stop_words(words, stopwords) for words in tqdm(A, desc='Deleting stopwords')]
     
     A = [check_empty(words) for words in tqdm(A, desc='Checking empty text')]
     A = [text_from_words(words) for words in A]
     df['A'] = A
     df = df.dropna()
-    S, A, Y = np.array(df['S']), np.array(df['A']), np.array(df['Y'])
-    S_train, S_test, A_train, A_test, Y_train, Y_test = train_test_split(S, A, Y, test_size=test_size, random_state=42, stratify=Y)
-
-    return S_train, S_test, A_train, A_test, Y_train, Y_test
+    if not split:
+        return df
+    df_train, df_test = train_test_split(df, test_size=test_size, random_state=42, stratify=df['Y'])
+    return df_train, df_test
