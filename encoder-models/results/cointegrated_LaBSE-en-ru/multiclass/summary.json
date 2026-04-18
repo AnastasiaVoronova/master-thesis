@@ -1,0 +1,110 @@
+{
+  "stage": "multiclass",
+  "best_f1": 0.6307479993837435,
+  "metrics_csv": "E:\\tw_enps\\results\\cointegrated_LaBSE-en-ru\\multiclass\\metrics.csv",
+  "best_checkpoint": "E:\\tw_enps\\models\\cointegrated_LaBSE-en-ru\\multiclass\\best_ckpt.pt",
+  "last_checkpoint": "E:\\tw_enps\\models\\cointegrated_LaBSE-en-ru\\multiclass\\last_ckpt.pt",
+  "results_dir": "E:\\tw_enps\\results\\cointegrated_LaBSE-en-ru\\multiclass",
+  "model_dir": "E:\\tw_enps\\models\\cointegrated_LaBSE-en-ru\\multiclass",
+  "plan": [
+    {
+      "name": "head_only",
+      "epochs": 100,
+      "lr": 0.0001,
+      "warmup_ratio": 0.03,
+      "early_stopping": 10,
+      "unfreeze_pooler": false,
+      "unfreeze_last_n_layers": 0,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler",
+      "epochs": 100,
+      "lr": 5e-05,
+      "warmup_ratio": 0.03,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 0,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler_plus_last1",
+      "epochs": 50,
+      "lr": 5e-05,
+      "warmup_ratio": 0.06,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 1,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler_plus_last2",
+      "epochs": 50,
+      "lr": 5e-05,
+      "warmup_ratio": 0.06,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 2,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler_plus_last3",
+      "epochs": 50,
+      "lr": 5e-05,
+      "warmup_ratio": 0.06,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 3,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler_plus_last4",
+      "epochs": 50,
+      "lr": 5e-05,
+      "warmup_ratio": 0.06,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 4,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler_plus_last5",
+      "epochs": 50,
+      "lr": 5e-05,
+      "warmup_ratio": 0.06,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 5,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler_plus_last8",
+      "epochs": 50,
+      "lr": 3e-05,
+      "warmup_ratio": 0.06,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 8,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler_plus_last11",
+      "epochs": 50,
+      "lr": 1e-05,
+      "warmup_ratio": 0.06,
+      "early_stopping": 10,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 11,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    }
+  ]
+}

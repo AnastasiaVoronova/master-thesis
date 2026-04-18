@@ -1,0 +1,25 @@
+{
+  "eval_split": "test",
+  "num_samples": 8642,
+  "stage1_binary_metrics": {
+    "precision": 0.9537313432835821,
+    "recall": 0.9767655151329868,
+    "specificity": 0.9711413144665798,
+    "f1": 0.9651110104213865,
+    "roc_auc": 0.9954107742925266
+  },
+  "stage2_oracle_metrics": {
+    "accuracy": 0.7431977988382757,
+    "macro_f1": 0.6320618338212844,
+    "weighted_f1": 0.7414845564146211
+  },
+  "end_to_end_merged_metrics": {
+    "accuracy": 0.8787317750520712,
+    "macro_f1": 0.6221261249523371,
+    "weighted_f1": 0.8799011650208823
+  },
+  "binary_checkpoint": "E:/tw_enps/models/ai-forever_ru-en-RoSBERTa/binary/best_ckpt.pt",
+  "multiclass_checkpoint": "E:/tw_enps/models/cointegrated_rubert-base-cased-nli-threeway/multiclass/best_ckpt.pt",
+  "binary_model_name": "ai-forever/ru-en-RoSBERTa",
+  "multiclass_model_name": "cointegrated/rubert-base-cased-nli-threeway"
+}

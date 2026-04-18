@@ -1,0 +1,44 @@
+{
+  "stage": "binary",
+  "best_f1": 0.9606562357587726,
+  "metrics_csv": "E:\\tw_enps\\results\\DeepPavlov_rubert-base-cased-sentence\\binary\\metrics.csv",
+  "best_checkpoint": "E:\\tw_enps\\models\\DeepPavlov_rubert-base-cased-sentence\\binary\\best_ckpt.pt",
+  "last_checkpoint": "E:\\tw_enps\\models\\DeepPavlov_rubert-base-cased-sentence\\binary\\last_ckpt.pt",
+  "results_dir": "E:\\tw_enps\\results\\DeepPavlov_rubert-base-cased-sentence\\binary",
+  "model_dir": "E:\\tw_enps\\models\\DeepPavlov_rubert-base-cased-sentence\\binary",
+  "plan": [
+    {
+      "name": "head_only",
+      "epochs": 18,
+      "lr": 0.0001,
+      "warmup_ratio": 0.1,
+      "early_stopping": 7,
+      "unfreeze_pooler": false,
+      "unfreeze_last_n_layers": 0,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "pooler",
+      "epochs": 18,
+      "lr": 5e-05,
+      "warmup_ratio": 0.1,
+      "early_stopping": 7,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 0,
+      "unfreeze_all_encoder_outputs": false,
+      "unfreeze_all_encoder": false
+    },
+    {
+      "name": "encoder_outputs",
+      "epochs": 18,
+      "lr": 5e-05,
+      "warmup_ratio": 0.1,
+      "early_stopping": 7,
+      "unfreeze_pooler": true,
+      "unfreeze_last_n_layers": 0,
+      "unfreeze_all_encoder_outputs": true,
+      "unfreeze_all_encoder": false
+    }
+  ]
+}

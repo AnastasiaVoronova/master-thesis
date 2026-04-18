@@ -1,0 +1,56 @@
+{
+  "data_path": "data/enps_full_2025.xlsx",
+  "train_stage": "binary",
+  "binary_model_name": "deepvk/USER2-base",
+  "multiclass_model_name": "bert-base-multilingual-uncased",
+  "models_root": "models",
+  "results_root": "results",
+  "max_length": 64,
+  "batch_size": 64,
+  "test_size": 0.25,
+  "seed": 42,
+  "binary_summary": {
+    "stage": "binary",
+    "best_f1": 0.9616031818877161,
+    "metrics_csv": "results\\deepvk_USER2-base\\binary\\metrics.csv",
+    "best_checkpoint": "models\\deepvk_USER2-base\\binary\\best_ckpt.pt",
+    "last_checkpoint": "models\\deepvk_USER2-base\\binary\\last_ckpt.pt",
+    "results_dir": "results\\deepvk_USER2-base\\binary",
+    "model_dir": "models\\deepvk_USER2-base\\binary",
+    "plan": [
+      {
+        "name": "head_only",
+        "epochs": 18,
+        "lr": 0.0001,
+        "warmup_ratio": 0.1,
+        "early_stopping": 7,
+        "unfreeze_pooler": false,
+        "unfreeze_last_n_layers": 0,
+        "unfreeze_all_encoder_outputs": false,
+        "unfreeze_all_encoder": false
+      },
+      {
+        "name": "pooler",
+        "epochs": 18,
+        "lr": 5e-05,
+        "warmup_ratio": 0.1,
+        "early_stopping": 7,
+        "unfreeze_pooler": true,
+        "unfreeze_last_n_layers": 0,
+        "unfreeze_all_encoder_outputs": false,
+        "unfreeze_all_encoder": false
+      },
+      {
+        "name": "encoder_outputs",
+        "epochs": 18,
+        "lr": 5e-05,
+        "warmup_ratio": 0.1,
+        "early_stopping": 7,
+        "unfreeze_pooler": true,
+        "unfreeze_last_n_layers": 0,
+        "unfreeze_all_encoder_outputs": true,
+        "unfreeze_all_encoder": false
+      }
+    ]
+  }
+}

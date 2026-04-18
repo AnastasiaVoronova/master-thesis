@@ -1,0 +1,15 @@
+{
+  "eval_split": "test",
+  "num_samples": 3271,
+  "num_classes_present": 28,
+  "multiclass_checkpoint": "models\\ai-forever_ruElectra-large\\multiclass\\best_ckpt.pt",
+  "multiclass_model_name": "ai-forever/ruElectra-large",
+  "metrics": {
+    "accuracy": 0.7468664017120147,
+    "precision_macro": 0.6597209176380464,
+    "recall_macro": 0.6254296214362395,
+    "f1_macro": 0.6354572772578242,
+    "f1_weighted": 0.7443631867130127,
+    "roc_auc_macro_ovr": 0.9635131382958874
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "eval_split": "test",
+  "num_samples": 8642,
+  "stage1_binary_metrics": {
+    "precision": 0.9488551888195064,
+    "recall": 0.9755426475084072,
+    "specificity": 0.9679761683113014,
+    "f1": 0.9620138679529695,
+    "roc_auc": 0.9941559176712511
+  },
+  "stage2_oracle_metrics": {
+    "accuracy": 0.7468664017120147,
+    "macro_f1": 0.6354572772578242,
+    "weighted_f1": 0.7443631867130127
+  },
+  "end_to_end_merged_metrics": {
+    "accuracy": 0.8780374913214534,
+    "macro_f1": 0.6263337641906797,
+    "weighted_f1": 0.8791345044682027
+  },
+  "binary_checkpoint": "E:/tw_enps/models/ai-forever_ruBert-base/binary/best_ckpt.pt",
+  "multiclass_checkpoint": "E:/tw_enps/models/ai-forever_ruElectra-large/multiclass/best_ckpt.pt",
+  "binary_model_name": "ai-forever/ruBert-base",
+  "multiclass_model_name": "ai-forever/ruElectra-large"
+}

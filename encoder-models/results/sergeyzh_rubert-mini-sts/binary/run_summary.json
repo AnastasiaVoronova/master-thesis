@@ -1,0 +1,56 @@
+{
+  "data_path": "data/enps_full_2025.xlsx",
+  "train_stage": "binary",
+  "binary_model_name": "sergeyzh/rubert-mini-sts",
+  "multiclass_model_name": "bert-base-multilingual-uncased",
+  "models_root": "E:\\tw_enps\\models",
+  "results_root": "E:\\tw_enps\\results",
+  "max_length": 64,
+  "batch_size": 64,
+  "test_size": 0.25,
+  "seed": 42,
+  "binary_summary": {
+    "stage": "binary",
+    "best_f1": 0.9596371882086168,
+    "metrics_csv": "E:\\tw_enps\\results\\sergeyzh_rubert-mini-sts\\binary\\metrics.csv",
+    "best_checkpoint": "E:\\tw_enps\\models\\sergeyzh_rubert-mini-sts\\binary\\best_ckpt.pt",
+    "last_checkpoint": "E:\\tw_enps\\models\\sergeyzh_rubert-mini-sts\\binary\\last_ckpt.pt",
+    "results_dir": "E:\\tw_enps\\results\\sergeyzh_rubert-mini-sts\\binary",
+    "model_dir": "E:\\tw_enps\\models\\sergeyzh_rubert-mini-sts\\binary",
+    "plan": [
+      {
+        "name": "head_only",
+        "epochs": 18,
+        "lr": 0.0001,
+        "warmup_ratio": 0.1,
+        "early_stopping": 7,
+        "unfreeze_pooler": false,
+        "unfreeze_last_n_layers": 0,
+        "unfreeze_all_encoder_outputs": false,
+        "unfreeze_all_encoder": false
+      },
+      {
+        "name": "pooler",
+        "epochs": 18,
+        "lr": 5e-05,
+        "warmup_ratio": 0.1,
+        "early_stopping": 7,
+        "unfreeze_pooler": true,
+        "unfreeze_last_n_layers": 0,
+        "unfreeze_all_encoder_outputs": false,
+        "unfreeze_all_encoder": false
+      },
+      {
+        "name": "encoder_outputs",
+        "epochs": 18,
+        "lr": 5e-05,
+        "warmup_ratio": 0.1,
+        "early_stopping": 7,
+        "unfreeze_pooler": true,
+        "unfreeze_last_n_layers": 0,
+        "unfreeze_all_encoder_outputs": true,
+        "unfreeze_all_encoder": false
+      }
+    ]
+  }
+}
