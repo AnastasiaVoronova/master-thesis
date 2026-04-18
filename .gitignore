@@ -33,9 +33,6 @@ logs/
 *.sqlite3
 *.sqlite
 
-# Telegram
-*.session
-
 # Build
 build/
 dist/
@@ -49,3 +46,6 @@ htmlcov/
 # Temp
 tmp/
 temp/
+
+# Data
+*/data
