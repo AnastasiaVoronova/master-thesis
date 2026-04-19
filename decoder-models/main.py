@@ -1,8 +1,11 @@
+import argparse
 import asyncio
-import sys
+from pathlib import Path
 from typing import Optional
+from tqdm import tqdm
 
 from llm_client import llm_client
+from preprocess import load_data
 
 
 categories_from_indices = {
@@ -46,33 +49,57 @@ def extract_int(value: str) -> Optional[int]:
         return None
 
 
-async def classify_comment(comment: str) -> None:
+async def classify_comment(comment: str, system_prompt: str) -> tuple[Optional[int], Optional[str]]:
     reply = await llm_client.chat(
         text=comment,
-        temperature=0.0,
-        max_tokens=1000,
+        system_prompt=system_prompt,
+        temperature=0.01,
+        max_tokens=10,
     )
 
     idx = extract_int(reply)
     if idx is None:
-        return
+        return None, None
 
     category = categories_from_indices.get(idx)
     if category:
-        print(category)
+        return idx, category
+    return None, None
 
 
-def main():
-    if sys.stdin.isatty():
-        comment = input("Введите комментарий: ").strip()
-    else:
-        comment = sys.stdin.read().strip()
+async def classify_all(texts, system_prompt: str):
+    tasks = [classify_comment(t, system_prompt) for t in texts]
+    return await asyncio.gather(*tasks)
 
-    if not comment:
-        return
 
-    asyncio.run(classify_comment(comment))
+async def main():
+    parser = argparse.ArgumentParser(description="Classify eNPS survey comments using DeepSeek LLM.")
+    parser.add_argument("--input", help="Path to input Excel or CSV file (columns: Score, A1, C1, A2, C2)")
+    parser.add_argument("--output", help="Path to output Excel file (default: <input_stem>_classified.xlsx)")
+    parser.add_argument("--prompt", default="prompt.txt", help="Path to system prompt file (default: prompt.txt)")
+    args = parser.parse_args()
+
+    system_prompt = Path(args.prompt).read_text(encoding="utf-8")
+
+    input_path = Path(args.input)
+    output_path = Path(args.output) if args.output else input_path.with_name(f"{input_path.stem}_classified.xlsx")
+
+    df = load_data(str(input_path))
+
+    texts = df["A"].tolist()
+    pred_idx, pred_cat = [], []
+
+    for i in tqdm(range(0, len(texts), 100)):
+        results = await classify_all(texts[i:i + 100], system_prompt)
+        for idx, cat in results:
+            pred_idx.append(idx)
+            pred_cat.append(cat)
+
+    df["pred_idx"] = pred_idx
+    df["pred_category"] = pred_cat
+    df.to_excel(output_path, index=False)
+    print(f"Saved to {output_path}")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

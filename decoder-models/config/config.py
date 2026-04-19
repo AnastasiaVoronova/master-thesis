@@ -1,8 +1,8 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    deepseek_api_key: str
-    deepseek_api_url: str
+    model_api_key: str
+    model_api_url: str
 
     class Config:
         env_file = ".env"

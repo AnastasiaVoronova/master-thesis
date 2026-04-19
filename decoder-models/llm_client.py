@@ -36,7 +36,7 @@ class LLMClient:
 
     def __init__(self, base_url: Optional[str] = None, timeout: float = 10.0,
                 model: str = "deepseek-chat"):
-        self.base_url = (base_url or settings.deepseek_api_url).rstrip("/")
+        self.base_url = (base_url or settings.model_api_url).rstrip("/")
         self.timeout = timeout
         self.client = httpx.AsyncClient(timeout=self.timeout)
         self.model = model
@@ -44,50 +44,16 @@ class LLMClient:
     async def chat(
         self,
         text: str,
+        system_prompt: str,
         temperature: float = 1.0,
         max_tokens: int = 2048,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> str:
- 
-        system_prompt = '''Используя предоставленные категории, классифицируй предоставленный текст по этим категориям.
-        В ответе верни одно число - индекс категории.'''
-
-        categories_prompt = '''Категории:
-            0 :  'нет конкретного ответа',
-            1 :  'ок',
-            2 :  'work-life balance',
-            3 :  'адекватные планы и количество метрик',
-            4 :  'бесплатное питание',
-            5 :  'бюрократия',
-            6 :  'взаимодействие',
-            7 :  'внерабочие активности',
-            8 :  'график работы',
-            9 :  'дополнительные сотрудники',
-            10 :  'идея по продукту',
-            11 :  'карьерный рост',
-            12 :  'клиенты',
-            13 :  'конкурсы',
-            14 :  'культура обратной связи',
-            15 :  'лояльность к сотрудникам',
-            16 :  'льготы',
-            17 :  'мерч',
-            18 :  'нездоровая атмосфера',
-            19 :  'обучение',
-            20 :  'оплата труда',
-            21 :  'офисное пространство',
-            22 :  'подарки на праздники',
-            23 :  'премии',
-            24 :  'процессы',
-            25 :  'сложность работы',
-            26 :  'техника/ит',
-            27 : 'удаленная работа',
-            28 : 'оплата сверхурочного труда',
-            29 : 'руководитель' '''
 
         payload = {
             "model": self.model,
             "messages": [
-                {"role": "system", "content": f"{system_prompt}\n\n{categories_prompt}"},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text}
             ],
             "prefix": True,
@@ -102,7 +68,7 @@ class LLMClient:
             r = await self.client.post(
                 f"{self.base_url}/chat/completions",
                 json=payload,
-                headers={"Authorization": f"Bearer {settings.deepseek_api_key}"}
+                headers={"Authorization": f"Bearer {settings.model_api_key}"}
             )
             r.raise_for_status()
             data = r.json()
