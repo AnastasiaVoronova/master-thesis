@@ -34,7 +34,7 @@ error_logger.addHandler(error_file)
 
 class LLMClient:
 
-    def __init__(self, base_url: Optional[str] = None, timeout: float = 10.0,
+    def __init__(self, base_url: Optional[str] = None, timeout: float = 30.0,
                 model: str = "deepseek-chat"):
         self.base_url = (base_url or settings.model_api_url).rstrip("/")
         self.timeout = timeout
@@ -56,7 +56,6 @@ class LLMClient:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": text}
             ],
-            "prefix": True,
             "temperature": temperature,
             "max_tokens": max_tokens
         }
@@ -74,17 +73,9 @@ class LLMClient:
             data = r.json()
 
             usage = data.get("usage", {})
-            cache_hit = usage.get("prompt_cache_hit_tokens")
-            cache_miss = usage.get("prompt_cache_miss_tokens")
-            completion_tokens = usage.get("completion_tokens")
-            total_tokens = usage.get("total_tokens")
-
             log_entry = {
                 "ts": datetime.utcnow().isoformat() + "Z",
-                "cache_hit": cache_hit,
-                "cache_miss": cache_miss,
-                "completion_tokens": completion_tokens,
-                "total_tokens": total_tokens
+                "usage": usage                
             }
             info_logger.info(json.dumps(log_entry, ensure_ascii=False))
 

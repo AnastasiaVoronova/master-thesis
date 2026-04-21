@@ -1,10 +1,12 @@
 import argparse
 import asyncio
+import re
 from pathlib import Path
 from typing import Optional
+
 from tqdm import tqdm
 
-from llm_client import llm_client
+from llm_client import LLMClient
 from preprocess import load_data
 
 
@@ -44,31 +46,32 @@ categories_from_indices = {
 
 def extract_int(value: str) -> Optional[int]:
     try:
+        value = re.sub(r"<think>.*?</think>", "", value, flags=re.DOTALL)
         return int(value.strip())
     except (ValueError, AttributeError):
         return None
 
 
-async def classify_comment(comment: str, system_prompt: str) -> tuple[Optional[int], Optional[str]]:
-    reply = await llm_client.chat(
+async def classify_comment(comment: str, system_prompt: str, client: LLMClient) -> tuple[Optional[int], Optional[str]]:
+    reply = await client.chat(
         text=comment,
         system_prompt=system_prompt,
         temperature=0.01,
-        max_tokens=10,
+        max_tokens=10000,
     )
 
     idx = extract_int(reply)
     if idx is None:
-        return None, None
+        return None, None, reply
 
     category = categories_from_indices.get(idx)
     if category:
-        return idx, category
-    return None, None
+        return idx, category, reply
+    return None, None, reply
 
 
-async def classify_all(texts, system_prompt: str):
-    tasks = [classify_comment(t, system_prompt) for t in texts]
+async def classify_all(texts, system_prompt: str, client: LLMClient):
+    tasks = [classify_comment(t, system_prompt, client) for t in texts]
     return await asyncio.gather(*tasks)
 
 
@@ -77,8 +80,10 @@ async def main():
     parser.add_argument("--input", help="Path to input Excel or CSV file (columns: Score, A1, C1, A2, C2)")
     parser.add_argument("--output", help="Path to output Excel file (default: <input_stem>_classified.xlsx)")
     parser.add_argument("--prompt", default="prompt.txt", help="Path to system prompt file (default: prompt.txt)")
+    parser.add_argument("--model", default="deepseek-chat", help="Model name to use (default: deepseek-chat)")
     args = parser.parse_args()
 
+    client = LLMClient(model=args.model)
     system_prompt = Path(args.prompt).read_text(encoding="utf-8")
 
     input_path = Path(args.input)
@@ -87,16 +92,18 @@ async def main():
     df = load_data(str(input_path))
 
     texts = df["A"].tolist()
-    pred_idx, pred_cat = [], []
+    pred_idx, pred_cat, replies = [], [], []
 
     for i in tqdm(range(0, len(texts), 100)):
-        results = await classify_all(texts[i:i + 100], system_prompt)
-        for idx, cat in results:
+        results = await classify_all(texts[i:i + 100], system_prompt, client)
+        for idx, cat, reply in results:
             pred_idx.append(idx)
             pred_cat.append(cat)
+            replies.append(reply)
 
     df["pred_idx"] = pred_idx
     df["pred_category"] = pred_cat
+    df["model_reply"] = replies
     df.to_excel(output_path, index=False)
     print(f"Saved to {output_path}")
 
