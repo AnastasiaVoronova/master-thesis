@@ -81,9 +81,11 @@ async def main():
     parser.add_argument("--output", help="Path to output Excel file (default: <input_stem>_classified.xlsx)")
     parser.add_argument("--prompt", default="prompt.txt", help="Path to system prompt file (default: prompt.txt)")
     parser.add_argument("--model", default="deepseek-chat", help="Model name to use (default: deepseek-chat)")
+    parser.add_argument("--thinking", choices=["true", "false"], default=None)
     args = parser.parse_args()
 
-    client = LLMClient(model=args.model)
+    thinking = {"true": True, "false": False}.get(args.thinking)
+    client = LLMClient(model=args.model, thinking=thinking)
     system_prompt = Path(args.prompt).read_text(encoding="utf-8")
 
     input_path = Path(args.input)
@@ -100,6 +102,7 @@ async def main():
             pred_idx.append(idx)
             pred_cat.append(cat)
             replies.append(reply)
+        # await asyncio.sleep(4)
 
     df["pred_idx"] = pred_idx
     df["pred_category"] = pred_cat

@@ -1,7 +1,7 @@
 import logging
 from typing import Optional, Dict, Any
-import httpx
 import json
+from openai import AsyncOpenAI, APIConnectionError, APIStatusError
 from config.config import settings
 from datetime import datetime
 
@@ -35,11 +35,14 @@ error_logger.addHandler(error_file)
 class LLMClient:
 
     def __init__(self, base_url: Optional[str] = None, timeout: float = 30.0,
-                model: str = "deepseek-chat"):
-        self.base_url = (base_url or settings.model_api_url).rstrip("/")
-        self.timeout = timeout
-        self.client = httpx.AsyncClient(timeout=self.timeout)
+                model: str = "deepseek-chat", thinking=None):
+        self.client = AsyncOpenAI(
+            api_key=settings.model_api_key,
+            base_url=(base_url or settings.model_api_url).rstrip("/"),
+            timeout=timeout,
+        )
         self.model = model
+        self.thinking = thinking  # None | True | False
 
     async def chat(
         self,
@@ -50,47 +53,44 @@ class LLMClient:
         metadata: Optional[Dict[str, Any]] = None,
     ) -> str:
 
-        payload = {
-            "model": self.model,
-            "messages": [
+        kwargs = dict(
+            model=self.model,
+            messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": text}
+                {"role": "user", "content": text},
             ],
-            "temperature": temperature,
-            "max_tokens": max_tokens
-        }
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
+
+        if self.thinking is not None:
+            kwargs["extra_body"] = {"thinking": {"type": "enabled" if self.thinking else "disabled"}}
 
         if metadata:
-            payload["metadata"] = metadata
+            kwargs["metadata"] = metadata
 
         try:
-            r = await self.client.post(
-                f"{self.base_url}/chat/completions",
-                json=payload,
-                headers={"Authorization": f"Bearer {settings.model_api_key}"}
-            )
-            r.raise_for_status()
-            data = r.json()
+            response = await self.client.chat.completions.create(**kwargs)
 
-            usage = data.get("usage", {})
+            usage = response.usage.model_dump() if response.usage else {}
             log_entry = {
                 "ts": datetime.utcnow().isoformat() + "Z",
-                "usage": usage                
+                "usage": usage,
             }
             info_logger.info(json.dumps(log_entry, ensure_ascii=False))
 
-            reply = data.get("choices", [{}])[0].get("message", {}).get("content")
+            reply = response.choices[0].message.content
             if not reply:
-                error_logger.error(f"Пустой ответ от LLM: {data}")
+                error_logger.error(f"Пустой ответ от LLM: {response}")
                 return "⚠️ Ошибка: пустой ответ от LLM"
 
             return reply
 
-        except httpx.RequestError as e:
+        except APIConnectionError as e:
             error_logger.error(f"Request failed: {e}")
             return "⚠️ Ошибка соединения с LLM. Попробуй позже."
-        except httpx.HTTPStatusError as e:
-            error_logger.error(f"HTTP error: {e.response.status_code} {e.response.text}")
+        except APIStatusError as e:
+            error_logger.error(f"HTTP error: {e.status_code} {e.response.text}")
             return "⚠️ LLM вернул ошибку. Попробуй позже."
 
 
