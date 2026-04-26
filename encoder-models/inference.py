@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 from transformers import AutoTokenizer
 
 from utils import resolve_device
@@ -36,6 +37,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--binary-threshold", type=float, default=0.5)
     parser.add_argument("--device", type=str, default="cuda")
 
+    parser.add_argument("--verbose", action="store_true", help="Show tqdm progress bars")
     parser.add_argument("--syntax-correction", action="store_true")
     parser.add_argument("--lemmatization", action="store_true")
     parser.add_argument("--stopwords-removal", action="store_true")
@@ -84,9 +86,10 @@ def _predict_binary_probs(
     model: ENPSClassifier,
     loader: DataLoader,
     device: torch.device,
+    verbose: bool = False,
 ) -> np.ndarray:
     probs_all: list[np.ndarray] = []
-    for batch in loader:
+    for batch in tqdm(loader, desc="binary", disable=not verbose):
         batch = {k: v.to(device) for k, v in batch.items()}
         logits = model(batch["input_ids"], batch["attention_mask"], batch["scores"]).cpu().numpy()
         probs = 1.0 / (1.0 + np.exp(-logits))
@@ -99,9 +102,10 @@ def _predict_multiclass(
     model: ENPSClassifier,
     loader: DataLoader,
     device: torch.device,
+    verbose: bool = False,
 ) -> np.ndarray:
     logits_all: list[np.ndarray] = []
-    for batch in loader:
+    for batch in tqdm(loader, desc="multiclass", disable=not verbose):
         batch = {k: v.to(device) for k, v in batch.items()}
         logits = model(batch["input_ids"], batch["attention_mask"], batch["scores"]).cpu().numpy()
         logits_all.append(logits)
@@ -122,6 +126,7 @@ def _run_column_inference(
     binary_threshold: float,
     batch_size: int,
     device: torch.device,
+    verbose: bool = False,
 ) -> pd.DataFrame:
     pairs = df.loc[:, ["Score", col]].copy().rename(columns={"Score": "score", col: "text"})
     pairs["text"] = preprocess_text_series(pairs["text"], preprocess_cfg)
@@ -136,12 +141,12 @@ def _run_column_inference(
         max_length=binary_max_length,
         batch_size=batch_size,
     )
-    problem_prob = _predict_binary_probs(binary_model, binary_loader, device)
+    problem_prob = _predict_binary_probs(binary_model, binary_loader, device, verbose=verbose)
     pairs["problem_probability"] = problem_prob
     pairs["problem_stated"] = (problem_prob >= binary_threshold).astype(bool)
 
     pairs["class_idx"] = np.nan
-    pairs["category"] = np.nan
+    pairs["category"] = pd.Series([pd.NA] * len(pairs), dtype=object, index=pairs.index)
 
     positives = pairs[pairs["problem_stated"]].copy()
     if not positives.empty:
@@ -152,7 +157,7 @@ def _run_column_inference(
             max_length=multiclass_max_length,
             batch_size=batch_size,
         )
-        pred_multi = _predict_multiclass(multi_model, multi_loader, device)
+        pred_multi = _predict_multiclass(multi_model, multi_loader, device, verbose=verbose)
         class_idx = pred_multi + 2
         positives["class_idx"] = class_idx
         positives["category"] = [index_to_category(int(v)) for v in class_idx]
@@ -198,6 +203,7 @@ def main() -> None:
         binary_threshold=args.binary_threshold,
         batch_size=args.batch_size,
         device=device,
+        verbose=args.verbose,
     )
     col2 = _run_column_inference(
         df=raw,
@@ -212,14 +218,15 @@ def main() -> None:
         binary_threshold=args.binary_threshold,
         batch_size=args.batch_size,
         device=device,
+        verbose=args.verbose,
     )
 
-    result["cat1"] = "РЅРµС‚ РѕС‚РІРµС‚Р°"
-    result["cat2"] = "РЅРµС‚ РѕС‚РІРµС‚Р°"
+    result["cat1"] = "нет ответа"
+    result["cat2"] = "нет ответа"
     if not col1.empty:
-        result.loc[col1.index, "cat1"] = col1["category"].fillna("РЅРµС‚ РѕС‚РІРµС‚Р°")
+        result.loc[col1.index, "cat1"] = col1["category"].fillna("нет ответа")
     if not col2.empty:
-        result.loc[col2.index, "cat2"] = col2["category"].fillna("РЅРµС‚ РѕС‚РІРµС‚Р°")
+        result.loc[col2.index, "cat2"] = col2["category"].fillna("нет ответа")
 
     out_path = Path(args.output_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
