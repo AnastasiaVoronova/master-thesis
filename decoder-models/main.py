@@ -53,7 +53,7 @@ def extract_int(value: str) -> Optional[int]:
 
 
 async def classify_comment(comment: str, system_prompt: str, client: LLMClient) -> tuple[Optional[int], Optional[str]]:
-    reply = await client.chat(
+    reply, response = await client.chat(
         text=comment,
         system_prompt=system_prompt,
         temperature=0.01,
@@ -62,12 +62,12 @@ async def classify_comment(comment: str, system_prompt: str, client: LLMClient) 
 
     idx = extract_int(reply)
     if idx is None:
-        return None, None, reply
+        return None, None, reply, response
 
     category = categories_from_indices.get(idx)
     if category:
-        return idx, category, reply
-    return None, None, reply
+        return idx, category, reply, response
+    return None, None, reply, response
 
 
 async def classify_all(texts, system_prompt: str, client: LLMClient):
@@ -94,19 +94,21 @@ async def main():
     df = load_data(str(input_path))
 
     texts = df["A"].tolist()
-    pred_idx, pred_cat, replies = [], [], []
+    pred_idx, pred_cat, replies, responses = [], [], [], []
 
     for i in tqdm(range(0, len(texts), 100)):
         results = await classify_all(texts[i:i + 100], system_prompt, client)
-        for idx, cat, reply in results:
+        for idx, cat, reply, response in results:
             pred_idx.append(idx)
             pred_cat.append(cat)
             replies.append(reply)
+            responses.append(response)
         # await asyncio.sleep(4)
 
     df["pred_idx"] = pred_idx
     df["pred_category"] = pred_cat
     df["model_reply"] = replies
+    df["model_response"] = responses
     df.to_excel(output_path, index=False)
     print(f"Saved to {output_path}")
 

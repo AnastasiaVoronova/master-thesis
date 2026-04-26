@@ -82,16 +82,16 @@ class LLMClient:
             reply = response.choices[0].message.content
             if not reply:
                 error_logger.error(f"Пустой ответ от LLM: {response}")
-                return "⚠️ Ошибка: пустой ответ от LLM"
+                return "None", "⚠️ Ошибка: пустой ответ от LLM"
 
-            return reply
+            return reply, response
 
         except APIConnectionError as e:
             error_logger.error(f"Request failed: {e}")
-            return "⚠️ Ошибка соединения с LLM. Попробуй позже."
+            return "None", "⚠️ Ошибка соединения с LLM. Попробуй позже."
         except APIStatusError as e:
             error_logger.error(f"HTTP error: {e.status_code} {e.response.text}")
-            return "⚠️ LLM вернул ошибку. Попробуй позже."
+            return "None", "⚠️ LLM вернул ошибку. Попробуй позже."
 
 
 
