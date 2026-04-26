@@ -1,0 +1,23 @@
+# Run app (development)
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+
+# Run app (production)
+uvicorn app:app --host 0.0.0.0 --port 8000 --workers 1
+
+# Train: Stage-1 (binary)
+python train.py --train-stage binary --data-path data/enps_full_2025.xlsx --binary-model-name bert-base-multilingual-uncased --models-root models --results-root results --train-indices-path data/train_indices.npy --test-indices-path data/test_indices.npy --max-length 64 --batch-size 64 --num-workers 0 --device cuda:0
+
+# Train: Stage-2 (multiclass)
+python train.py --train-stage multiclass --data-path data/enps_full_2025.xlsx --multiclass-model-name bert-base-multilingual-uncased --models-root models --results-root results --train-indices-path data/train_indices.npy --test-indices-path data/test_indices.npy --max-length 64 --batch-size 64 --num-workers 0 --device cuda:0
+
+# Inference: two-stage pipeline
+python inference.py --input-path data/enps_full_2025.xlsx --output-path results/preds.csv --binary-checkpoint models/bert-base-multilingual-uncased/binary/best_ckpt.pt --multiclass-checkpoint models/bert-base-multilingual-uncased/multiclass/best_ckpt.pt --binary-max-length 64 --multiclass-max-length 64 --batch-size 64 --binary-threshold 0.5 --device cuda:0
+
+# Validation: two-stage end-to-end (test split)
+python validate_two_stage_classifier.py --data-path data/enps_full_2025.xlsx --binary-checkpoint models/bert-base-multilingual-uncased/binary/best_ckpt.pt --multiclass-checkpoint models/bert-base-multilingual-uncased/multiclass/best_ckpt.pt --eval-split test --train-indices-path data/train_indices.npy --test-indices-path data/test_indices.npy --max-length 64 --batch-size 64 --device cuda:0
+
+# Validation: train split
+python validate_two_stage_classifier.py --data-path data/enps_full_2025.xlsx --binary-checkpoint models/bert-base-multilingual-uncased/binary/best_ckpt.pt --multiclass-checkpoint models/bert-base-multilingual-uncased/multiclass/best_ckpt.pt --eval-split train --train-indices-path data/train_indices.npy --test-indices-path data/test_indices.npy --max-length 64 --batch-size 64 --device cuda:0
+
+# Validation: all data
+python validate_two_stage_classifier.py --data-path data/enps_full_2025.xlsx --binary-checkpoint models/bert-base-multilingual-uncased/binary/best_ckpt.pt --multiclass-checkpoint models/bert-base-multilingual-uncased/multiclass/best_ckpt.pt --eval-split all --max-length 64 --batch-size 64 --device cuda:0
