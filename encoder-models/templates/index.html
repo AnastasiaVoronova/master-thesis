@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ENPS Классификатор</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<header>
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="28" height="28" rx="6" fill="white"/>
+    <path d="M14 5L21 22H17.5L16 18H12L10.5 22H7L14 5Z" fill="#EF3124"/>
+    <path d="M13 15.5H15L14 12L13 15.5Z" fill="white"/>
+  </svg>
+  <h1>ENPS Классификатор</h1>
+</header>
+
+<main>
+
+  <!-- Upload card -->
+  <div class="card">
+    <p class="card-title">Загрузка файла</p>
+
+    <div id="drop-zone">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <p>Перетащите файл сюда или <strong>выберите вручную</strong></p>
+      <p>Формат: .xlsx</p>
+    </div>
+    <input type="file" id="file-input" accept=".xlsx" style="display:none" />
+    <div id="file-name"></div>
+
+    <!-- Column mapping — hidden until file uploaded -->
+    <div id="col-map" class="col-map hidden">
+      <p class="col-map-title">Сопоставление колонок</p>
+      <div class="col-grid">
+        <div class="col-row">
+          <label for="sel-score">Оценка (Score)</label>
+          <select id="sel-score"></select>
+        </div>
+        <div class="col-row">
+          <label for="sel-a1">Вопрос 1 (A1)</label>
+          <select id="sel-a1"></select>
+        </div>
+        <div class="col-row">
+          <label for="sel-a2">Вопрос 2 (A2)</label>
+          <select id="sel-a2"></select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings card -->
+  <div class="card">
+    <p class="card-title">Настройки</p>
+    <div class="threshold-row">
+      <label for="threshold">Порог бинарной классификации</label>
+      <input type="range" id="threshold" min="0" max="1" step="0.01" value="0.5" />
+      <span id="threshold-value">0.50</span>
+    </div>
+  </div>
+
+  <!-- Run button -->
+  <button id="run-btn" disabled>Запустить</button>
+
+  <!-- Progress card -->
+  <div class="card hidden" id="progress-section">
+    <p class="card-title">Прогресс</p>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-meta">
+      <span id="progress-message">Ожидание...</span>
+      <span id="progress-percent">0%</span>
+    </div>
+    <span id="progress-status" class="badge hidden"></span>
+    <div class="progress-actions">
+      <button id="cancel-btn" class="cancel-btn hidden">Отменить</button>
+      <a id="download-btn" href="#" download class="download-btn hidden">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Скачать результат
+      </a>
+    </div>
+  </div>
+
+  <!-- History card -->
+  <div class="card">
+    <p class="card-title">История обработок</p>
+    <p class="history-empty" id="history-empty">Обработок пока нет</p>
+    <table id="history-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Дата</th>
+          <th>Файл</th>
+          <th>Порог</th>
+          <th>Строк</th>
+          <th>Статус</th>
+          <th>Результат</th>
+        </tr>
+      </thead>
+      <tbody id="history-body"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
