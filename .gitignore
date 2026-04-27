@@ -33,6 +33,17 @@ logs/
 *.sqlite3
 *.sqlite
 
+# Models
+*.pt
+*.pth
+*.ckpt
+*.bin
+
+# Processed data
+*/processed
+*/predictions
+*/runs
+
 # Build
 build/
 dist/
@@ -49,3 +60,4 @@ temp/
 
 # Data
 */data
+*/uploads
