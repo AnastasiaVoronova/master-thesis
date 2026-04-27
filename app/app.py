@@ -8,7 +8,6 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-import sys
 
 import numpy as np
 import pandas as pd
@@ -20,10 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from transformers import AutoTokenizer
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "encoder-models"))
-
-from inference import _load_model_from_checkpoint, _make_inference_loader
-from preprocessing import TextPreprocessConfig, index_to_category, preprocess_text_series
+from app_utils import _load_model_from_checkpoint, _make_inference_loader, TextPreprocessConfig, index_to_category, preprocess_text_series
 
 BASE_DIR = Path(__file__).parent
 BINARY_CHECKPOINT = BASE_DIR / "final_model" / "binary.pt"
