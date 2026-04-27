@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
 set PY_VER=3.12.0
 set REPO_DIR=%USERPROFILE%\eNPS_App
@@ -49,11 +49,25 @@ echo Creating virtual environment...
 
 call "%VENV_DIR%\Scripts\activate.bat"
 
-echo Installing dependencies...
-IF EXIST "%REPO_DIR%\requirements.txt" (
+echo Checking for NVIDIA GPU...
+nvidia-smi >nul 2>&1
+if %errorlevel% == 0 (
+    for /f "tokens=9" %%v in ('nvidia-smi ^| findstr "CUDA Version"') do set CUDA_VER=%%v
+    for /f "tokens=1 delims=." %%m in ("!CUDA_VER!") do set CUDA_MAJOR=%%m
+
+    if "!CUDA_MAJOR!"=="12" (
+        set TORCH_INDEX=cu124
+    ) else (
+        set TORCH_INDEX=cu118
+    )
+
+    echo NVIDIA GPU detected. CUDA !CUDA_VER!. Installing with !TORCH_INDEX! support...
+    powershell -Command "(Get-Content '%REPO_DIR%\requirements-cuda.txt') -replace 'cu124', '!TORCH_INDEX!' | Set-Content '%REPO_DIR%\requirements-cuda-current.txt'"
+    pip install -r "%REPO_DIR%\requirements-cuda-current.txt"
+    del /f /q "%REPO_DIR%\requirements-cuda-current.txt"
+) else (
+    echo No NVIDIA GPU detected. Installing CPU-only...
     pip install -r "%REPO_DIR%\requirements.txt"
-) ELSE (
-    echo WARNING: requirements.txt not found in %REPO_DIR%
 )
 
 echo Downloading models from HuggingFace...
