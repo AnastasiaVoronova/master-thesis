@@ -56,6 +56,11 @@ IF EXIST "%REPO_DIR%\requirements.txt" (
     echo WARNING: requirements.txt not found in %REPO_DIR%
 )
 
+echo Downloading models from HuggingFace...
+if not exist "%REPO_DIR%\final_model" mkdir "%REPO_DIR%\final_model"
+powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/AnastasiaVoronova/enps_binary/resolve/main/binary.pt' -OutFile '%REPO_DIR%\final_model\binary.pt'"
+powershell -Command "Invoke-WebRequest -Uri 'https://huggingface.co/AnastasiaVoronova/enps_multiclass/resolve/main/multiclass.pt' -OutFile '%REPO_DIR%\final_model\multiclass.pt'"
+
 REM --- Ярлык на Рабочем столе ---
 set "SHORTCUT_NAME=eNPS_App.lnk"
 set "TARGET_FILE=%REPO_DIR%\run.bat"

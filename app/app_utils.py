@@ -33,7 +33,7 @@ class ENPSClassifier(nn.Module):
         self.num_labels = cfg.num_labels
 
         transformer_cfg = AutoConfig.from_pretrained(cfg.model_name)
-        backbone = AutoModel.from_pretrained(cfg.model_name, config=transformer_cfg)
+        backbone = AutoModel.from_config(transformer_cfg)
         if getattr(transformer_cfg, "is_encoder_decoder", False) and hasattr(backbone, "get_encoder"):
             self.encoder = backbone.get_encoder()
         else:

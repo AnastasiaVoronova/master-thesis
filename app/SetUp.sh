@@ -38,6 +38,11 @@ else
     echo "WARNING: requirements.txt not found in $REPO_DIR"
 fi
 
+echo "Downloading models from HuggingFace..."
+mkdir -p "$REPO_DIR/final_model"
+curl -L --progress-bar "https://huggingface.co/AnastasiaVoronova/enps_binary/resolve/main/binary.pt" -o "$REPO_DIR/final_model/binary.pt"
+curl -L --progress-bar "https://huggingface.co/AnastasiaVoronova/enps_multiclass/resolve/main/multiclass.pt" -o "$REPO_DIR/final_model/multiclass.pt"
+
 SHORTCUT_PATH="$HOME/Desktop/eNPS_App.command"
 cat > "$SHORTCUT_PATH" << SHORTCUT_EOF
 #!/bin/bash
