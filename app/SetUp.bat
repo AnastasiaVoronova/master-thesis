@@ -86,7 +86,8 @@ if not exist "%TARGET_FILE%" (
     exit /b 1
 )
 
-cscript //nologo "%VBS_PATH%" "%TARGET_FILE%" "%SHORTCUT_NAME%"
+set "ICON_FILE=%REPO_DIR%\media\logo.ico"
+cscript //nologo "%VBS_PATH%" "%TARGET_FILE%" "%SHORTCUT_NAME%" "%ICON_FILE%"
 
 set "SHORTCUT_PATH=%USERPROFILE%\Desktop\%SHORTCUT_NAME%"
 if exist "%SHORTCUT_PATH%" (

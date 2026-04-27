@@ -56,6 +56,16 @@ else
     echo "Link NOT created. Run app with eNPS_App/run.command"
 fi
 
+ICON_ICO="$REPO_DIR/media/logo.ico"
+
+if [ -f "$ICON_ICO" ]; then
+    osascript << ASEOF
+use framework "AppKit"
+set theImage to current application's NSImage's alloc()'s initWithContentsOfFile_("$ICON_ICO")
+current application's NSWorkspace's sharedWorkspace()'s setIcon:theImage forFile:"$SHORTCUT_PATH" options:0
+ASEOF
+fi
+
 echo "============================================================================"
 echo "Set Up Finished: $REPO_DIR"
 echo "============================================================================"
