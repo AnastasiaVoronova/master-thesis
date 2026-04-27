@@ -50,6 +50,9 @@ echo Repository ready in: %ROOT%
 echo ============================================================================
 
 if "%DOWNLOADED%"=="1" (
+    echo Removing Mac-only files...
+    for %%F in ("%ROOT%\*.sh" "%ROOT%\*.command") do del /f /q "%%F"
+
     if exist "%ROOT%\SetUp.bat" (
         echo Running SetUp.bat...
         call "%ROOT%\SetUp.bat"

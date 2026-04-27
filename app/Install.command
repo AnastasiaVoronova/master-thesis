@@ -32,6 +32,9 @@ if [ -z "$(ls -A "$ROOT")" ]; then
     echo "Repository ready in: $ROOT"
     echo "============================================================================"
 
+    echo "Removing Windows-only files..."
+    rm -f "$ROOT"/*.bat "$ROOT"/*.vbs
+
     if [ -f "$ROOT/SetUp.sh" ]; then
         echo "Running SetUp.sh..."
         bash "$ROOT/SetUp.sh"
